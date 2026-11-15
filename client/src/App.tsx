@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { Analytics } from '@vercel/analytics/react';
 
 import Navbar from './components/Navbar';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -282,6 +283,7 @@ const App: React.FC = () => {
           <Router>
             <ScrollToTop />
             <AppContent />
+            <Analytics />
           </Router>
         </ToastProvider>
       </AuthProvider>
