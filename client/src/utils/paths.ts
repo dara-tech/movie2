@@ -16,35 +16,41 @@ export function slugify(input: string): string {
  * - Mongo ObjectId (24 hex)
  * - TMDB id (digits)
  * - HybridService id (tmdb_123)
- * - Slug forms like: "some-title-<id>"
+ * - Primary SEO format: "[title]-[year]-[id]" or "[title]-[id]" (ID at the end)
+ * - Legacy format: "[id]-[title]" (ID at the start)
  */
 export function extractObjectId(slugOrId?: string | null): string | null {
   if (!slugOrId) return null;
-  const raw = String(slugOrId);
-  // If it's exactly an id
+  const raw = String(slugOrId).trim();
+
+  // If it's directly an ID
   if (/^[0-9a-fA-F]{24}$/.test(raw)) return raw;
   if (/^\d+$/.test(raw)) return raw;
   if (/^tmdb_\d+$/.test(raw)) return raw;
 
-  // New format: <id>-slug
-  const m1 = raw.match(/^(tmdb_\d+|\d+|[0-9a-fA-F]{24})-(.+)$/);
-  if (m1) return m1[1];
+  // 1. Primary SEO format: Title + Year + ID at end, e.g. "avatar-aang-2025-980431"
+  const mEnd = raw.match(/-([0-9a-fA-F]{24}|tmdb_\d+|\d+)$/);
+  if (mEnd) return mEnd[1];
 
-  // Legacy format: slug-<id>
-  const m2 = raw.match(/-(tmdb_\d+|\d+|[0-9a-fA-F]{24})$/);
-  return m2 ? m2[1] : null;
+  // 2. Legacy format: ID at start, e.g. "980431-avatar-aang"
+  const mStart = raw.match(/^([0-9a-fA-F]{24}|tmdb_\d+|\d+)-(.+)$/);
+  if (mStart) return mStart[1];
+
+  return null;
 }
 
 /**
- * URL slug segment before `_id`. For English originals, prefer `originalTitle` when it
- * differs from the localized `title` so canonical paths match TMDB’s primary name
- * (e.g. avoids odd localized strings in the path).
+ * High-performing SEO Movie Slug:
+ * Places Movie Title + Release Year FIRST for maximum keyword weight on Google,
+ * followed by the content ID at the end:
+ * /movie/avatar-aang-the-last-airbender-2025-980431
  */
 export function movieSlug(movie: {
   _id: string;
   title: string;
   originalTitle?: string;
   originalLanguage?: string;
+  releaseDate?: string;
 }): string {
   const t = (movie.title || '').trim();
   const o = (movie.originalTitle || '').trim();
@@ -53,12 +59,34 @@ export function movieSlug(movie: {
     lang === 'en' && o.length > 0 && (!t || o.toLowerCase() !== t.toLowerCase());
   const basis = useOriginalForSlug ? o : t || o || 'movie';
   const idStr = movie._id.startsWith('tmdb_') ? movie._id.replace('tmdb_', '') : movie._id;
-  return `${idStr}-${slugify(basis)}`;
+
+  let yearStr = '';
+  if (movie.releaseDate) {
+    const y = new Date(movie.releaseDate).getFullYear();
+    if (!isNaN(y) && y > 1900 && y < 2100) {
+      yearStr = `-${y}`;
+    }
+  }
+
+  return `${slugify(basis)}${yearStr}-${idStr}`;
 }
 
-export function tvShowSlug(tvShow: { _id: string; name: string }): string {
+export function tvShowSlug(tvShow: {
+  _id: string;
+  name: string;
+  firstAirDate?: string;
+}): string {
   const idStr = tvShow._id.startsWith('tmdb_') ? tvShow._id.replace('tmdb_', '') : tvShow._id;
-  return `${idStr}-${slugify(tvShow.name)}`;
+
+  let yearStr = '';
+  if (tvShow.firstAirDate) {
+    const y = new Date(tvShow.firstAirDate).getFullYear();
+    if (!isNaN(y) && y > 1900 && y < 2100) {
+      yearStr = `-${y}`;
+    }
+  }
+
+  return `${slugify(tvShow.name)}${yearStr}-${idStr}`;
 }
 
 export function moviePath(movie: {
@@ -66,11 +94,15 @@ export function moviePath(movie: {
   title: string;
   originalTitle?: string;
   originalLanguage?: string;
+  releaseDate?: string;
 }): string {
   return `/movie/${movieSlug(movie)}`;
 }
 
-export function tvShowPath(tvShow: { _id: string; name: string }): string {
+export function tvShowPath(tvShow: {
+  _id: string;
+  name: string;
+  firstAirDate?: string;
+}): string {
   return `/tvshow/${tvShowSlug(tvShow)}`;
 }
-

@@ -91,8 +91,13 @@ router.get('/sitemaps.xml', async (req, res) => {
       const changefreq = (currentYear - releaseYear) <= 1 ? 'daily' : (currentYear - releaseYear) <= 3 ? 'weekly' : 'monthly';
       
       // Ensure URL is properly formatted and escaped
+      let yearStr = '';
+      if (movie.releaseDate) {
+        const y = new Date(movie.releaseDate).getFullYear();
+        if (!isNaN(y) && y > 1900 && y < 2100) yearStr = `-${y}`;
+      }
       const movieSlug = slugify(movie.title);
-      const movieUrl = `${baseUrl}/movie/${movieSlug}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
+      const movieUrl = `${baseUrl}/movie/${movieSlug}${yearStr}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(movieUrl)}</loc>\n`;
       xml += `    <lastmod>${lastmod}</lastmod>\n`;
@@ -125,8 +130,13 @@ router.get('/sitemaps.xml', async (req, res) => {
       const changefreq = (currentYear - releaseYear) <= 1 ? 'daily' : (currentYear - releaseYear) <= 3 ? 'weekly' : 'monthly';
       
       // Ensure URL is properly formatted and escaped
+      let tvYearStr = '';
+      if (tvShow.firstAirDate) {
+        const y = new Date(tvShow.firstAirDate).getFullYear();
+        if (!isNaN(y) && y > 1900 && y < 2100) tvYearStr = `-${y}`;
+      }
       const tvSlug = slugify(tvShow.name);
-      const tvShowUrl = `${baseUrl}/tvshow/${tvSlug}-${tvShowId}`.replace(/([^:]\/)\/+/g, '$1');
+      const tvShowUrl = `${baseUrl}/tvshow/${tvSlug}${tvYearStr}-${tvShowId}`.replace(/([^:]\/)\/+/g, '$1');
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(tvShowUrl)}</loc>\n`;
       xml += `    <lastmod>${lastmod}</lastmod>\n`;

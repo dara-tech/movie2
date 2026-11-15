@@ -42,6 +42,7 @@ const telegramRoutes = require('./routes/telegram');
 connectDB();
 
 const app = express();
+app.disable('x-powered-by');
 const server = http.createServer(app);
 
 // CORS configuration
@@ -52,13 +53,15 @@ const isDev = (process.env.NODE_ENV || 'development') !== 'production';
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:3000",
-  "http://localhost:3001", // Next.js / React app - development
+  "http://localhost:3001",
+  "http://localhost:5000",
   "https://streammoviehdfree.vercel.app",
-  "http://moviestream.cc",
+  "https://streamhd.to",
+  "https://www.streamhd.to",
   "https://moviestream.cc",
+  "https://www.moviestream.cc",
   "https://freemovie.online",
-  "http://freemovie.online",
-  /^https:\/\/.*\.vercel\.app$/ // Allow all Vercel deployments (preview + prod)
+  /^https:\/\/streammoviehdfree(-[a-zA-Z0-9_-]+)?\.vercel\.app$/ // Restrict to project's own Vercel deployments
 ].filter(Boolean);
 
 function isAllowedOrigin(origin) {

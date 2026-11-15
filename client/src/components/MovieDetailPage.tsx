@@ -282,6 +282,7 @@ const MovieDetailPage: React.FC = () => {
               <iframe
                 key={`cinema-${currentStream.url}-${reloadKey}`}
                 src={currentStream.url}
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
                 className="absolute inset-0 w-full h-full border-0 outline-none bg-black block"
                 style={{
                   width: '100%',

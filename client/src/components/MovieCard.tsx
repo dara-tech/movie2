@@ -229,10 +229,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
   }, [movie._id]);
 
   const basePoster = movie.posterPath
-    ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+    ? `https://image.tmdb.org/t/p/w342${movie.posterPath}`
     : '/placeholder-movie.jpg';
   const hiResPoster = movie.posterPath
-    ? `https://image.tmdb.org/t/p/w780${movie.posterPath}`
+    ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
     : '/placeholder-movie.jpg';
 
   return (

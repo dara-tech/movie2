@@ -10,7 +10,11 @@ const requireAdmin = async (req, res, next) => {
       return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: 'Server authentication configuration error' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
@@ -41,7 +45,11 @@ const requireSuperAdmin = async (req, res, next) => {
       return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: 'Server authentication configuration error' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {

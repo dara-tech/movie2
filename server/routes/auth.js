@@ -8,9 +8,12 @@ const User = require('../models/User');
 const { sendPasswordResetEmail } = require('../services/emailService');
 
 function buildAuthPayload(user, message) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
   const token = jwt.sign(
     { userId: user.id, email: user.email },
-    process.env.JWT_SECRET || 'fallback-secret',
+    process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
 

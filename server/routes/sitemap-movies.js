@@ -37,8 +37,13 @@ async function renderMoviesSitemap(req, res) {
         ? new Date(movie.updatedAt).toISOString().split('T')[0]
         : currentDate;
       
+      let yearStr = '';
+      if (movie.releaseDate) {
+        const y = new Date(movie.releaseDate).getFullYear();
+        if (!isNaN(y) && y > 1900 && y < 2100) yearStr = `-${y}`;
+      }
       const movieSlug = slugify(movie.title);
-      const movieUrl = `${baseUrl}/movie/${movieSlug}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
+      const movieUrl = `${baseUrl}/movie/${movieSlug}${yearStr}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
       
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(movieUrl)}</loc>\n`;
