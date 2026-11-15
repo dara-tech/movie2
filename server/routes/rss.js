@@ -5,7 +5,7 @@ const TvShow = require('../models/TvShow');
 const Genre = require('../models/Genre');
 const SiteSettings = require('../models/SiteSettings');
 const logger = require('../utils/logger');
-const { getBaseUrl, escapeXml, slugify } = require('../utils/sitemapHelpers');
+const { getBaseUrl, escapeXml, slugify, buildContentSlug } = require('../utils/sitemapHelpers');
 
 // Cache object with 10-minute TTL
 const feedCache = new Map();
@@ -151,13 +151,13 @@ async function renderMasterRss(req, res) {
 
     movies.forEach(m => {
       const year = m.releaseDate ? new Date(m.releaseDate).getFullYear() : (m.year || '');
-      const slug = slugify(m.title);
+      const slug = buildContentSlug(m.title, m.releaseDate, m.tmdbId, m._id);
       items.push({
         id: m._id,
         type: 'movie',
         title: m.title,
         year,
-        url: `${baseUrl}/movie/${slug}-${m._id}`,
+        url: `${baseUrl}/movie/${slug}`,
         posterPath: m.posterPath,
         overview: m.overview,
         voteAverage: m.voteAverage,
@@ -168,13 +168,13 @@ async function renderMasterRss(req, res) {
 
     tvShows.forEach(t => {
       const year = t.firstAirDate ? new Date(t.firstAirDate).getFullYear() : '';
-      const slug = slugify(t.name);
+      const slug = buildContentSlug(t.name, t.firstAirDate, t.tmdbId, t._id);
       items.push({
         id: t._id,
         type: 'tv',
         title: t.name,
         year,
-        url: `${baseUrl}/tvshow/${slug}-${t._id}`,
+        url: `${baseUrl}/tvshow/${slug}`,
         posterPath: t.posterPath,
         overview: t.overview,
         voteAverage: t.voteAverage,
@@ -229,13 +229,13 @@ async function renderMoviesRss(req, res) {
 
     const items = movies.map(m => {
       const year = m.releaseDate ? new Date(m.releaseDate).getFullYear() : (m.year || '');
-      const slug = slugify(m.title);
+      const slug = buildContentSlug(m.title, m.releaseDate, m.tmdbId, m._id);
       return {
         id: m._id,
         type: 'movie',
         title: m.title,
         year,
-        url: `${baseUrl}/movie/${slug}-${m._id}`,
+        url: `${baseUrl}/movie/${slug}`,
         posterPath: m.posterPath,
         overview: m.overview,
         voteAverage: m.voteAverage,
@@ -287,13 +287,13 @@ async function renderTvRss(req, res) {
 
     const items = tvShows.map(t => {
       const year = t.firstAirDate ? new Date(t.firstAirDate).getFullYear() : '';
-      const slug = slugify(t.name);
+      const slug = buildContentSlug(t.name, t.firstAirDate, t.tmdbId, t._id);
       return {
         id: t._id,
         type: 'tv',
         title: t.name,
         year,
-        url: `${baseUrl}/tvshow/${slug}-${t._id}`,
+        url: `${baseUrl}/tvshow/${slug}`,
         posterPath: t.posterPath,
         overview: t.overview,
         voteAverage: t.voteAverage,
@@ -354,13 +354,13 @@ async function renderTopRss(req, res) {
 
     movies.forEach(m => {
       const year = m.releaseDate ? new Date(m.releaseDate).getFullYear() : (m.year || '');
-      const slug = slugify(m.title);
+      const slug = buildContentSlug(m.title, m.releaseDate, m.tmdbId, m._id);
       items.push({
         id: m._id,
         type: 'movie',
         title: m.title,
         year,
-        url: `${baseUrl}/movie/${slug}-${m._id}`,
+        url: `${baseUrl}/movie/${slug}`,
         posterPath: m.posterPath,
         overview: m.overview,
         voteAverage: m.voteAverage,
@@ -371,13 +371,13 @@ async function renderTopRss(req, res) {
 
     tvShows.forEach(t => {
       const year = t.firstAirDate ? new Date(t.firstAirDate).getFullYear() : '';
-      const slug = slugify(t.name);
+      const slug = buildContentSlug(t.name, t.firstAirDate, t.tmdbId, t._id);
       items.push({
         id: t._id,
         type: 'tv',
         title: t.name,
         year,
-        url: `${baseUrl}/tvshow/${slug}-${t._id}`,
+        url: `${baseUrl}/tvshow/${slug}`,
         posterPath: t.posterPath,
         overview: t.overview,
         voteAverage: t.voteAverage,

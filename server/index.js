@@ -38,6 +38,7 @@ const sitemapMoviesRoutes = require('./routes/sitemap-movies');
 const sitemapTvShowsRoutes = require('./routes/sitemap-tvshows');
 const rssRoutes = require('./routes/rss');
 const telegramRoutes = require('./routes/telegram');
+const { getBaseUrl } = require('./utils/sitemapHelpers');
 // Connect to database
 connectDB();
 
@@ -214,7 +215,48 @@ app.use('/api/site-settings', siteSettingsRoutes);
 app.use('/api/telegram', telegramRoutes);
 app.use('/api/smartlinks', require('./routes/smartlinks'));
 
-// Sitemap routes (before static files to ensure they're served)
+// Sitemap and feed routes (before static files to ensure they're served)
+app.get('/robots.txt', (req, res) => {
+  res.set('Content-Type', 'text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=86400');
+  const baseUrl = getBaseUrl(req);
+  let host = 'www.streamhd.to';
+  try {
+    host = new URL(baseUrl).host;
+  } catch (e) {}
+
+  const robots = `User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /watchlist
+Disallow: /history
+
+# Explicitly allow sitemap and important pages for all crawlers
+Allow: /sitemaps.xml
+Allow: /sitemap.xml
+Allow: /sitemap_index.xml
+Allow: /sitemap-movies.xml
+Allow: /sitemap-tvshows.xml
+Allow: /rss.xml
+Allow: /feed.xml
+Allow: /rss/
+Allow: /movies
+Allow: /tvshows
+Allow: /search
+Allow: /roadmaps
+
+# Sitemaps
+Sitemap: ${baseUrl}/sitemaps.xml
+Sitemap: ${baseUrl}/sitemap_index.xml
+Sitemap: ${baseUrl}/sitemap-movies.xml
+Sitemap: ${baseUrl}/sitemap-tvshows.xml
+Host: ${host}
+`;
+  res.send(robots);
+});
+
 app.use('/', sitemapRoutes);
 app.use('/', sitemapSimpleRoutes);
 app.use('/', sitemapIndexRoutes);

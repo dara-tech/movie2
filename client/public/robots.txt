@@ -22,8 +22,15 @@ Allow: /search
 Allow: /roadmaps
 
 # Sitemaps - multiple sitemap references for better SEO
+Sitemap: https://www.streamhd.to/sitemaps.xml
+Sitemap: https://www.streamhd.to/sitemap_index.xml
+Sitemap: https://www.streamhd.to/sitemap-movies.xml
+Sitemap: https://www.streamhd.to/sitemap-tvshows.xml
+Host: www.streamhd.to
+
 Sitemap: https://www.moviestream.cc/sitemaps.xml
 Sitemap: https://www.moviestream.cc/sitemap_index.xml
 Sitemap: https://www.moviestream.cc/sitemap-movies.xml
 Sitemap: https://www.moviestream.cc/sitemap-tvshows.xml
 Host: www.moviestream.cc
+
