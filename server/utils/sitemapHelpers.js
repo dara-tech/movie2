@@ -31,6 +31,10 @@ function getAllowedSitemapHosts() {
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
   const defaults = [
+    'streamhd.to',
+    'www.streamhd.to',
+    'streamhd.cc',
+    'www.streamhd.cc',
     'moviestream.cc',
     'www.moviestream.cc',
     'freemovie.online',
@@ -103,7 +107,7 @@ function getBaseUrl(req) {
     }
   }
 
-  return 'https://moviestream.cc';
+  return process.env.SITE_URL || 'https://www.streamhd.to';
 }
 
 function escapeXml(unsafe) {
@@ -128,4 +132,39 @@ function slugify(input) {
     .replace(/-{2,}/g, '-');
 }
 
-module.exports = { getBaseUrl, escapeXml, slugify };
+/**
+ * Robustly extracts a 4-digit release year from a string or Date.
+ */
+function extractYear(dateVal) {
+  if (!dateVal) return '';
+  const str = String(dateVal);
+  const match = str.match(/\b(19\d\d|20\d\d)\b/);
+  if (match) return match[1];
+  const y = new Date(dateVal).getFullYear();
+  if (!isNaN(y) && y > 1900 && y < 2100) return String(y);
+  return '';
+}
+
+/**
+ * Builds high-performing SEO slug:
+ * {clean-title}-{year}-{id}
+ * Prioritizes TMDB ID over 24-hex Mongo ID for concise and crawlable URLs.
+ */
+function buildContentSlug(title, dateVal, tmdbId, mongoId) {
+  const basis = slugify(title) || 'content';
+  const year = extractYear(dateVal);
+  const yearPart = year ? `-${year}` : '';
+
+  const rawId = tmdbId ? String(tmdbId) : (mongoId ? String(mongoId) : '');
+  const cleanId = rawId.startsWith('tmdb_') ? rawId.replace('tmdb_', '') : rawId;
+
+  return `${basis}${yearPart}-${cleanId}`;
+}
+
+module.exports = {
+  getBaseUrl,
+  escapeXml,
+  slugify,
+  extractYear,
+  buildContentSlug
+};

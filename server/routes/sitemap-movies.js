@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Movie = require('../models/Movie');
 const logger = require('../utils/logger');
-const { getBaseUrl, escapeXml, slugify } = require('../utils/sitemapHelpers');
+const { getBaseUrl, escapeXml, buildContentSlug } = require('../utils/sitemapHelpers');
 
 async function renderMoviesSitemap(req, res) {
   // Set headers FIRST
@@ -21,7 +21,7 @@ async function renderMoviesSitemap(req, res) {
     
     // Get movies with pagination
     const movies = await Movie.find({ isAvailable: true })
-      .select('_id title releaseDate posterPath overview updatedAt')
+      .select('_id tmdbId title releaseDate posterPath overview updatedAt')
       .sort({ popularity: -1, releaseDate: -1 })
       .skip(skip)
       .limit(limit)
@@ -32,18 +32,12 @@ async function renderMoviesSitemap(req, res) {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
     
     movies.forEach((movie, index) => {
-      const movieId = movie._id.toString();
       const lastmod = movie.updatedAt 
         ? new Date(movie.updatedAt).toISOString().split('T')[0]
         : currentDate;
       
-      let yearStr = '';
-      if (movie.releaseDate) {
-        const y = new Date(movie.releaseDate).getFullYear();
-        if (!isNaN(y) && y > 1900 && y < 2100) yearStr = `-${y}`;
-      }
-      const movieSlug = slugify(movie.title);
-      const movieUrl = `${baseUrl}/movie/${movieSlug}${yearStr}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
+      const slug = buildContentSlug(movie.title, movie.releaseDate, movie.tmdbId, movie._id);
+      const movieUrl = `${baseUrl}/movie/${slug}`.replace(/([^:]\/)\/+/g, '$1');
       
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(movieUrl)}</loc>\n`;

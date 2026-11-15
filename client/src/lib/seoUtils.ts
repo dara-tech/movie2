@@ -1,3 +1,5 @@
+import { moviePath, tvShowPath } from '../utils/paths';
+
 /**
  * SEO and OpenGraph utility functions for movies and TV shows
  */
@@ -59,7 +61,13 @@ export const generateMovieSEO = (movie: MovieSEOData, config: SEOConfig = defaul
     ? `https://image.tmdb.org/t/p/w780${movie.posterPath}`
     : `${config.siteUrl}${config.defaultImage}`;
   
-  const url = `${config.siteUrl}/movie/${movie.tmdbId}`;
+  const path = moviePath({
+    _id: String(movie.tmdbId),
+    tmdbId: movie.tmdbId,
+    title: movie.title,
+    releaseDate: movie.releaseDate
+  });
+  const url = `${config.siteUrl}${path}`;
   const year = new Date(movie.releaseDate).getFullYear();
   const genres = movie.genres.map(g => g.name).join(', ');
   
@@ -93,7 +101,13 @@ export const generateTVShowSEO = (tvShow: TVShowSEOData, config: SEOConfig = def
     ? `https://image.tmdb.org/t/p/w780${tvShow.posterPath}`
     : `${config.siteUrl}${config.defaultImage}`;
   
-  const url = `${config.siteUrl}/tvshow/${tvShow.tmdbId}`;
+  const path = tvShowPath({
+    _id: String(tvShow.tmdbId),
+    tmdbId: tvShow.tmdbId,
+    name: tvShow.name,
+    firstAirDate: tvShow.firstAirDate
+  });
+  const url = `${config.siteUrl}${path}`;
   const year = new Date(tvShow.firstAirDate).getFullYear();
   const genres = (tvShow.genres || []).map(g => g.name).join(', ');
   const creators = (tvShow.createdBy || []).map(c => c.name).join(', ');

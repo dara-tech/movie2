@@ -4,7 +4,7 @@ const Movie = require('../models/Movie');
 const TvShow = require('../models/TvShow');
 const Genre = require('../models/Genre');
 const logger = require('../utils/logger');
-const { getBaseUrl, escapeXml, slugify } = require('../utils/sitemapHelpers');
+const { getBaseUrl, escapeXml, slugify, extractYear, buildContentSlug } = require('../utils/sitemapHelpers');
 
 // Generate sitemap XML
 // Support both sitemap.xml (redirect) and sitemaps.xml
@@ -76,7 +76,6 @@ router.get('/sitemaps.xml', async (req, res) => {
       .lean();
 
     movies.forEach((movie, index) => {
-      const movieId = movie._id.toString();
       const lastmod = movie.updatedAt 
         ? new Date(movie.updatedAt).toISOString().split('T')[0]
         : currentDate;
@@ -86,18 +85,13 @@ router.get('/sitemaps.xml', async (req, res) => {
       const priority = Math.min(0.9, Math.max(0.5, 0.5 + (popularityScore / 1000) * 0.4)).toFixed(1);
       
       // Dynamic changefreq - recent movies change more often
-      const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 0;
+      const year = extractYear(movie.releaseDate);
+      const releaseYear = year ? parseInt(year) : 0;
       const currentYear = new Date().getFullYear();
       const changefreq = (currentYear - releaseYear) <= 1 ? 'daily' : (currentYear - releaseYear) <= 3 ? 'weekly' : 'monthly';
       
-      // Ensure URL is properly formatted and escaped
-      let yearStr = '';
-      if (movie.releaseDate) {
-        const y = new Date(movie.releaseDate).getFullYear();
-        if (!isNaN(y) && y > 1900 && y < 2100) yearStr = `-${y}`;
-      }
-      const movieSlug = slugify(movie.title);
-      const movieUrl = `${baseUrl}/movie/${movieSlug}${yearStr}-${movieId}`.replace(/([^:]\/)\/+/g, '$1');
+      const slug = buildContentSlug(movie.title, movie.releaseDate, movie.tmdbId, movie._id);
+      const movieUrl = `${baseUrl}/movie/${slug}`.replace(/([^:]\/)\/+/g, '$1');
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(movieUrl)}</loc>\n`;
       xml += `    <lastmod>${lastmod}</lastmod>\n`;
@@ -115,7 +109,6 @@ router.get('/sitemaps.xml', async (req, res) => {
       .lean();
 
     tvShows.forEach((tvShow, index) => {
-      const tvShowId = tvShow._id.toString();
       const lastmod = tvShow.updatedAt 
         ? new Date(tvShow.updatedAt).toISOString().split('T')[0]
         : currentDate;
@@ -125,18 +118,13 @@ router.get('/sitemaps.xml', async (req, res) => {
       const priority = Math.min(0.9, Math.max(0.5, 0.5 + (popularityScore / 1000) * 0.4)).toFixed(1);
       
       // Dynamic changefreq - recent shows change more often
-      const releaseYear = tvShow.firstAirDate ? new Date(tvShow.firstAirDate).getFullYear() : 0;
+      const year = extractYear(tvShow.firstAirDate);
+      const releaseYear = year ? parseInt(year) : 0;
       const currentYear = new Date().getFullYear();
       const changefreq = (currentYear - releaseYear) <= 1 ? 'daily' : (currentYear - releaseYear) <= 3 ? 'weekly' : 'monthly';
       
-      // Ensure URL is properly formatted and escaped
-      let tvYearStr = '';
-      if (tvShow.firstAirDate) {
-        const y = new Date(tvShow.firstAirDate).getFullYear();
-        if (!isNaN(y) && y > 1900 && y < 2100) tvYearStr = `-${y}`;
-      }
-      const tvSlug = slugify(tvShow.name);
-      const tvShowUrl = `${baseUrl}/tvshow/${tvSlug}${tvYearStr}-${tvShowId}`.replace(/([^:]\/)\/+/g, '$1');
+      const slug = buildContentSlug(tvShow.name, tvShow.firstAirDate, tvShow.tmdbId, tvShow._id);
+      const tvShowUrl = `${baseUrl}/tvshow/${slug}`.replace(/([^:]\/)\/+/g, '$1');
       xml += '  <url>\n';
       xml += `    <loc>${escapeXml(tvShowUrl)}</loc>\n`;
       xml += `    <lastmod>${lastmod}</lastmod>\n`;

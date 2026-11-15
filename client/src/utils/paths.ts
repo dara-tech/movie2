@@ -40,17 +40,31 @@ export function extractObjectId(slugOrId?: string | null): string | null {
 }
 
 /**
+ * Robustly extracts a 4-digit release year from a string or Date.
+ */
+function extractYear(dateVal?: string | Date | null): string {
+  if (!dateVal) return '';
+  const str = String(dateVal);
+  const match = str.match(/\b(19\d\d|20\d\d)\b/);
+  if (match) return `-${match[1]}`;
+  const y = new Date(dateVal).getFullYear();
+  if (!isNaN(y) && y > 1900 && y < 2100) return `-${y}`;
+  return '';
+}
+
+/**
  * High-performing SEO Movie Slug:
  * Places Movie Title + Release Year FIRST for maximum keyword weight on Google,
- * followed by the content ID at the end:
+ * followed by the content ID (prefers clean numeric TMDB ID over Mongo ObjectId):
  * /movie/avatar-aang-the-last-airbender-2025-980431
  */
 export function movieSlug(movie: {
-  _id: string;
+  _id?: string;
+  tmdbId?: number | string;
   title: string;
   originalTitle?: string;
   originalLanguage?: string;
-  releaseDate?: string;
+  releaseDate?: string | Date;
 }): string {
   const t = (movie.title || '').trim();
   const o = (movie.originalTitle || '').trim();
@@ -58,51 +72,44 @@ export function movieSlug(movie: {
   const useOriginalForSlug =
     lang === 'en' && o.length > 0 && (!t || o.toLowerCase() !== t.toLowerCase());
   const basis = useOriginalForSlug ? o : t || o || 'movie';
-  const idStr = movie._id.startsWith('tmdb_') ? movie._id.replace('tmdb_', '') : movie._id;
 
-  let yearStr = '';
-  if (movie.releaseDate) {
-    const y = new Date(movie.releaseDate).getFullYear();
-    if (!isNaN(y) && y > 1900 && y < 2100) {
-      yearStr = `-${y}`;
-    }
-  }
+  // Prefer tmdbId when available for much cleaner, shorter, SEO-friendly numeric URLs
+  const rawId = movie.tmdbId ? String(movie.tmdbId) : String(movie._id || '');
+  const idStr = rawId.startsWith('tmdb_') ? rawId.replace('tmdb_', '') : rawId;
+  const yearStr = extractYear(movie.releaseDate);
 
   return `${slugify(basis)}${yearStr}-${idStr}`;
 }
 
 export function tvShowSlug(tvShow: {
-  _id: string;
+  _id?: string;
+  tmdbId?: number | string;
   name: string;
-  firstAirDate?: string;
+  firstAirDate?: string | Date;
 }): string {
-  const idStr = tvShow._id.startsWith('tmdb_') ? tvShow._id.replace('tmdb_', '') : tvShow._id;
-
-  let yearStr = '';
-  if (tvShow.firstAirDate) {
-    const y = new Date(tvShow.firstAirDate).getFullYear();
-    if (!isNaN(y) && y > 1900 && y < 2100) {
-      yearStr = `-${y}`;
-    }
-  }
+  const rawId = tvShow.tmdbId ? String(tvShow.tmdbId) : String(tvShow._id || '');
+  const idStr = rawId.startsWith('tmdb_') ? rawId.replace('tmdb_', '') : rawId;
+  const yearStr = extractYear(tvShow.firstAirDate);
 
   return `${slugify(tvShow.name)}${yearStr}-${idStr}`;
 }
 
 export function moviePath(movie: {
-  _id: string;
+  _id?: string;
+  tmdbId?: number | string;
   title: string;
   originalTitle?: string;
   originalLanguage?: string;
-  releaseDate?: string;
+  releaseDate?: string | Date;
 }): string {
   return `/movie/${movieSlug(movie)}`;
 }
 
 export function tvShowPath(tvShow: {
-  _id: string;
+  _id?: string;
+  tmdbId?: number | string;
   name: string;
-  firstAirDate?: string;
+  firstAirDate?: string | Date;
 }): string {
   return `/tvshow/${tvShowSlug(tvShow)}`;
 }
