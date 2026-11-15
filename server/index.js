@@ -9,7 +9,7 @@ require('dotenv').config();
 const logger = require('./utils/logger');
 const validateEnv = require('./middleware/validateEnv');
 const errorHandler = require('./middleware/errorHandler');
-const { apiLimiter, authLimiter, aiLimiter } = require('./middleware/rateLimiter');
+const { apiLimiter, authLimiter, searchLimiter, aiLimiter } = require('./middleware/rateLimiter');
 
 // Database connection
 const connectDB = require('./config/database');
@@ -43,6 +43,8 @@ connectDB();
 
 const app = express();
 app.disable('x-powered-by');
+// Trust first proxy hop (Cloudflare, Render, Netlify, Nginx) for accurate client IP rate limiting
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 // CORS configuration
@@ -112,8 +114,9 @@ try {
 // Middleware
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Restrict JSON body size to prevent RAM exhaustion and memory-based DDoS attacks
+app.use(express.json({ limit: '500kb' }));
+app.use(express.urlencoded({ extended: true, limit: '500kb' }));
 
 // Compression middleware for better performance
 const compression = require('compression');
@@ -202,7 +205,7 @@ app.use('/api/streaming', streamingRoutes);
 app.use('/api/superembed-player', superembedPlayerRoutes);
 app.use('/api/admin/sync', syncManagementRoutes);
 app.use('/api/cast', castRoutes);
-app.use('/api/search', require('./routes/search'));
+app.use('/api/search', searchLimiter, require('./routes/search')); // Protected with dedicated search rate limiting
 app.use('/api/ai', aiLimiter, aiRoutes); // Stricter rate limiting for AI
 app.use('/api/activity', activityRoutes);
 app.use('/api/roadmaps', roadmapRoutes);

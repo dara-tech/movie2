@@ -50,6 +50,7 @@ const setCachedData = (key, data) => {
 const Watchlist = require('../models/Watchlist');
 const WatchHistory = require('../models/WatchHistory');
 const auth = require('../middleware/auth');
+const { searchLimiter } = require('../middleware/rateLimiter');
 const tmdbService = require('../services/tmdbService');
 const hybridService = require('../services/hybridService');
 const geminiService = require('../services/geminiService');
@@ -677,17 +678,24 @@ router.get('/genre/:genreId', async (req, res) => {
   }
 });
 
-// Search movies
-router.get('/search/:query', async (req, res) => {
+// Search movies (protected against ReDoS and DDoS floods)
+router.get('/search/:query', searchLimiter, async (req, res) => {
   try {
     const { query } = req.params;
     const { page = 1, limit = 20 } = req.query;
 
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      return res.json({ movies: [], totalPages: 0, currentPage: 1, totalMovies: 0 });
+    }
+
+    // Escape special regex characters to prevent ReDoS (Regular Expression Denial of Service)
+    const sanitizedQuery = query.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     const movies = await Movie.find({
       $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { originalTitle: { $regex: query, $options: 'i' } },
-        { overview: { $regex: query, $options: 'i' } }
+        { title: { $regex: sanitizedQuery, $options: 'i' } },
+        { originalTitle: { $regex: sanitizedQuery, $options: 'i' } },
+        { overview: { $regex: sanitizedQuery, $options: 'i' } }
       ],
       isAvailable: true
     })
