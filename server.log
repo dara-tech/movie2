@@ -1,0 +1,12 @@
+Server running on port 5001
+Environment: development
+🚀 Starting auto-reload pings every 30 seconds...
+🧹 Watch room auto-cleanup scheduled: Daily at 3 AM UTC
+✅ MongoDB Connected: ac-ygjoijd-shard-00-01.01mrphm.mongodb.net
+📊 Database: test
+[Admin] Attempting to bulk delete 20 watch rooms
+[Admin] Successfully bulk deleted 20 watch rooms
+[Admin] Attempting to bulk delete 4 watch rooms
+[Admin] Successfully bulk deleted 4 watch rooms
+User connected: IUkNomzcldDOhhgBAAAB
+User disconnected: IUkNomzcldDOhhgBAAAB

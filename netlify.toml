@@ -1,0 +1,121 @@
+# Netlify configuration for auto-deployment from Git
+# This file should be at the repository root
+
+[build]
+  # Base directory: Netlify will cd into this directory first
+  base = "client"
+  # Build command (runs from the base directory)
+  command = "npm install --legacy-peer-deps && npm run build"
+  # Publish directory (relative to base directory, not repository root)
+  publish = "build"
+  # Functions directory (relative to base directory)
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Add any environment variables here if needed
+  # REACT_APP_API_URL = "https://your-backend-url.com"
+
+# CRITICAL: Specific routes MUST come before catch-all /* rule
+# Netlify processes redirects in order, so exact matches must be first
+
+# Sitemap: route through function so response is always XML (Content-Type: application/xml)
+# Direct proxy to backend can return HTML on timeout/errors; function guarantees XML
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemaps.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemaps.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemaps.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap_index.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap_index.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap-movies.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap-movies.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap-tvshows.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap-tvshows.xml"
+  status = 200
+  force = true
+
+# Paginated sitemaps (sitemap-movies-1.xml, sitemap-tvshows-2.xml, etc.)
+[[redirects]]
+  from = "/sitemap-movies-*.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap-movies-:splat.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap-tvshows-*.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap-tvshows-:splat.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap-simple.xml"
+  to = "/.netlify/functions/sitemap-proxy?path=/sitemap-simple.xml"
+  status = 200
+  force = true
+
+# Handle robots.txt - serve from public folder
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+  force = true
+
+# Handle client-side routing - redirect all other routes to index.html
+# This must be LAST to catch all remaining routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache control headers
+# Static assets with hash in filename - cache for 1 year
+[[headers]]
+  for = "/static/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/static/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Service worker - no cache
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# HTML files - no cache
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Other static files
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

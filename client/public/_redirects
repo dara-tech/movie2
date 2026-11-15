@@ -1,0 +1,13 @@
+# Netlify redirects file (takes priority over netlify.toml)
+# CRITICAL: Specific routes MUST come BEFORE the catch-all rule
+
+# Sitemap and robots.txt are served directly from build folder
+# No redirect needed - they're static files that Netlify serves automatically
+# The catch-all rule below will NOT catch .xml files
+
+# Robots.txt - serve static file
+/robots.txt /robots.txt 200!
+
+# All other routes - SPA routing (must be last)
+# Note: .xml files in build folder are served automatically before this rule
+/* /index.html 200

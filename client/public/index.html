@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="origin" />
+    <meta name="application-name" content="MovieStream" />
+    <meta name="monetag" content="563ad58b1098d905b8624af03b1153f5">
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta
+      name="description"
+      content="MovieStream - Watch Free Movies and TV Shows in Full HD from anywhere. Stream trending movies, top-rated series, and latest releases online."
+    />
+    
+    <!-- OpenGraph Meta Tags -->
+    <meta property="og:title" content="MovieStream - Premium Movie & TV Streaming" />
+    <meta property="og:description" content="MovieStream - Watch latest movies and TV shows in Full HD with personalized recommendations and fast streaming." />
+    <meta property="og:image" content="https://www.moviestream.cc/placeholder-movie.jpg" />
+    <meta property="og:image:secure_url" content="https://www.moviestream.cc/placeholder-movie.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MovieStream - Premium Movie Streaming Platform" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.moviestream.cc/" />
+    <meta property="og:site_name" content="MovieStream" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Sitemap reference for better SEO -->
+    <link rel="sitemap" type="application/xml" href="%PUBLIC_URL%/sitemaps.xml" />
+    
+    <!-- RSS Feeds for syndication & SEO discovery -->
+    <link rel="alternate" type="application/rss+xml" title="MovieStream - Latest Movies &amp; TV Shows" href="%PUBLIC_URL%/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="MovieStream - Movies Only" href="%PUBLIC_URL%/rss/movies.xml" />
+    <link rel="alternate" type="application/rss+xml" title="MovieStream - TV Series Only" href="%PUBLIC_URL%/rss/tv.xml" />
+    <link rel="alternate" type="application/rss+xml" title="MovieStream - Top Rated &amp; Trending" href="%PUBLIC_URL%/rss/top.xml" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@MovieStream" />
+    <meta name="twitter:title" content="MovieStream - Premium Movie & TV Streaming" />
+    <meta name="twitter:description" content="MovieStream - Watch latest movies and TV shows in Full HD with personalized recommendations." />
+    <meta name="twitter:image" content="https://www.moviestream.cc/placeholder-movie.jpg" />
+    <meta name="twitter:image:alt" content="MovieStream — streaming movies and TV shows" />
+    
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="144x144" href="%PUBLIC_URL%/android-chrome-144x144.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preload critical resources for better performance -->
+    <link rel="dns-prefetch" href="//image.tmdb.org" />
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+    <link rel="dns-prefetch" href="//movie-7zq4.onrender.com" />
+    <link rel="preconnect" href="https://movie-7zq4.onrender.com" crossorigin />
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-449FS2FPMX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-449FS2FPMX');
+    </script>
+    
+    <!-- Ad scripts are loaded conditionally via AdLoader component (only for non-authenticated users) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "MovieStream",
+        "url": "https://www.moviestream.cc",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.moviestream.cc/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    
+    <title>MovieStream - Watch Free Movies & TV Shows Online in Full HD</title>
+    
+    <!-- Google Fonts: Modern Tech & Display Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    
+    <!-- Ad container is created dynamically by AdLoader component (only for non-authenticated users) -->
+    
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>

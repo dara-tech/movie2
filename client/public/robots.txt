@@ -1,0 +1,29 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /watchlist
+Disallow: /history
+
+# Explicitly allow sitemap and important pages for all crawlers
+Allow: /sitemaps.xml
+Allow: /sitemap.xml
+Allow: /sitemap_index.xml
+Allow: /sitemap-movies.xml
+Allow: /sitemap-tvshows.xml
+Allow: /rss.xml
+Allow: /feed.xml
+Allow: /rss/
+Allow: /movies
+Allow: /tvshows
+Allow: /search
+Allow: /roadmaps
+
+# Sitemaps - multiple sitemap references for better SEO
+Sitemap: https://www.moviestream.cc/sitemaps.xml
+Sitemap: https://www.moviestream.cc/sitemap_index.xml
+Sitemap: https://www.moviestream.cc/sitemap-movies.xml
+Sitemap: https://www.moviestream.cc/sitemap-tvshows.xml
+Host: www.moviestream.cc

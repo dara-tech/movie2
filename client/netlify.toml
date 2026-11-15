@@ -1,0 +1,124 @@
+[build]
+  # Base directory for the build (relative to repository root)
+  base = "client"
+  publish = "build"
+  command = "npm install --legacy-peer-deps && npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Prerendering disabled - using client-side react-helmet-async for meta tags
+# Note: Client-side meta tags won't work for social crawlers (use Next.js for that)
+# [[prerendering]]
+#   crawl = true
+#   include = ["/", "/movies", "/tvshows", "/movie/*", "/tvshow/*"]
+
+# Redirect movie routes to Next.js (if Next.js is deployed separately)
+# For now, redirect all routes to index.html (React app)
+# Movie pages handled by React app (not Next.js)
+# [[redirects]]
+#   from = "/movie/:id"
+#   to = "https://streammoviestream.netlify.app/movie/:id"
+#   status = 200
+#   force = true
+
+# Redirect old sitemap.xml to new sitemaps.xml for backward compatibility
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemaps.xml"
+  status = 301
+  force = true
+
+# Sitemaps.xml is served directly from build folder (no redirect needed)
+# File in public/sitemaps.xml gets copied to build/sitemaps.xml during build
+# Netlify serves static files automatically before any redirect rules
+
+# Handle simple sitemap - direct redirect to backend (no function needed)
+[[redirects]]
+  from = "/sitemap-simple.xml"
+  to = "https://movie-7zq4.onrender.com/sitemap-simple.xml"
+  status = 200
+  force = true
+
+# Handle robots.txt - serve from public folder
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+  force = true
+
+# Handle client-side routing - redirect all other routes to index.html
+# This must be LAST to catch all remaining routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache control headers
+# Static assets with hash in filename - cache for 1 year
+[[headers]]
+  for = "/static/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/static/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Service worker - no cache
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# HTML files - no cache
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Other static files
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Image optimization and caching
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "gzip, br"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "gzip, br"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "gzip, br"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "gzip, br"
+
+# Enable compression for all text-based files
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
