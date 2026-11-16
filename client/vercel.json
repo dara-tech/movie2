@@ -4,6 +4,17 @@
   "installCommand": "npm install --legacy-peer-deps",
   "framework": null,
   "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(python-requests|aiohttp|httpx|scrapy|go-http-client|apache-httpclient|urllib|python-urllib).*"
+        }
+      ],
+      "destination": "/api/block-bot"
+    },
     { "source": "/sitemap.xml", "destination": "/api/sitemap-proxy?path=/sitemaps.xml" },
     { "source": "/sitemaps.xml", "destination": "/api/sitemap-proxy?path=/sitemaps.xml" },
     { "source": "/sitemap_index.xml", "destination": "/api/sitemap-proxy?path=/sitemap_index.xml" },

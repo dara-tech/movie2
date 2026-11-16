@@ -113,6 +113,18 @@ try {
 }
 
 // Middleware
+// Bot & Scraper Blocker - instantly terminate automated scrapers and flood tools
+app.use((req, res, next) => {
+  const ua = req.get('user-agent') || '';
+  if (/python-requests|aiohttp|httpx|scrapy|go-http-client|apache-httpclient|python-urllib|libwww-perl/i.test(ua)) {
+    return res.status(403).json({
+      error: 'Access Denied',
+      message: 'Automated scraping and flood scripts are prohibited.'
+    });
+  }
+  next();
+});
+
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 // Restrict JSON body size to prevent RAM exhaustion and memory-based DDoS attacks
