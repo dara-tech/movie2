@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Shield, ExternalLink, X, Zap, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export interface VpnBannerProps {
   /** Variant style */
@@ -30,11 +32,19 @@ export const VpnBanner: React.FC<VpnBannerProps> = ({
   subtitle: manualSubtitle,
   className = ''
 }) => {
+  const { user } = useAuth();
+  const location = useLocation();
   const [closed, setClosed] = useState(false);
   const [smartLink, setSmartLink] = useState<SmartLinkData | null>(null);
 
+  const AUTH_PATHS = ['/signin', '/login', '/register', '/auth', '/forgot-password', '/reset-password'];
+  const isAuthPage = AUTH_PATHS.some((path) => location.pathname.toLowerCase().startsWith(path));
+  const isHiddenFloating = variant === 'floating' && (Boolean(user) || isAuthPage);
+
   // Fetch active affiliate link from backend if available
   useEffect(() => {
+    if (isHiddenFloating) return;
+
     let isCancelled = false;
 
     const fetchAffiliateLink = async () => {
@@ -53,7 +63,7 @@ export const VpnBanner: React.FC<VpnBannerProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [isHiddenFloating]);
 
   const fallbackUrl =
     process.env.REACT_APP_VPN_AFFILIATE_URL ||
@@ -73,7 +83,7 @@ export const VpnBanner: React.FC<VpnBannerProps> = ({
     }
   };
 
-  if (closed) return null;
+  if (closed || isHiddenFloating) return null;
 
   // 1. Sleek Glassmorphic Player Bar (for Player Toolbars & Server Bars)
   if (variant === 'player-bar') {

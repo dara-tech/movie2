@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface AdLoaderProps {
@@ -10,16 +11,61 @@ interface AdLoaderProps {
   disabled?: boolean;
 }
 
+const AUTH_ROUTES = [
+  '/signin',
+  '/login',
+  '/register',
+  '/auth',
+  '/forgot-password',
+  '/reset-password',
+];
+
+const isAuthPath = (path: string): boolean => {
+  if (!path) return false;
+  const cleanPath = path.toLowerCase().split('?')[0].split('#')[0];
+  return AUTH_ROUTES.some(
+    (route) => cleanPath === route || cleanPath.startsWith(`${route}/`)
+  );
+};
+
+const removeMonetagScript = () => {
+  if (typeof document === 'undefined') return;
+
+  const scripts = document.querySelectorAll('#monetag-ad-script');
+  scripts.forEach((script) => {
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  });
+
+  const headScript = document.head?.querySelector('#monetag-ad-script');
+  if (headScript?.parentNode) {
+    headScript.parentNode.removeChild(headScript);
+  }
+
+  const bodyScript = document.body?.querySelector('#monetag-ad-script');
+  if (bodyScript?.parentNode) {
+    bodyScript.parentNode.removeChild(bodyScript);
+  }
+
+  const byId = document.getElementById('monetag-ad-script');
+  if (byId?.parentNode) {
+    byId.parentNode.removeChild(byId);
+  }
+};
+
 const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false }) => {
   const { user } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
-    // 1. Clean up and return if disabled or user is an admin
-    if (disabled || user?.role === 'admin' || user?.role === 'super_admin') {
-      const existingScript = document.getElementById('monetag-ad-script');
-      if (existingScript && existingScript.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
-      }
+    const currentPath = location.pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
+    const isAuthRoute = isAuthPath(currentPath) || (typeof window !== 'undefined' && isAuthPath(window.location.pathname));
+    const isAuthenticated = Boolean(user) || user !== null;
+
+    // 1. Clean up and return if disabled, user is authenticated (100% ad-free), or on auth routes
+    if (disabled || isAuthenticated || isAuthRoute) {
+      removeMonetagScript();
       return;
     }
 
@@ -56,12 +102,9 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
 
     return () => {
       // Cleanup script on unmount
-      const scriptToRemove = document.getElementById('monetag-ad-script');
-      if (scriptToRemove && scriptToRemove.parentNode) {
-        scriptToRemove.parentNode.removeChild(scriptToRemove);
-      }
+      removeMonetagScript();
     };
-  }, [user, zoneId, scriptUrl, disabled]);
+  }, [user, zoneId, scriptUrl, disabled, location.pathname]);
 
   return null;
 };

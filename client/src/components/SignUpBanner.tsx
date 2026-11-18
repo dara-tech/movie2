@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { X, Star, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
+
+const AUTH_PATHS = ['/signin', '/login', '/register', '/auth', '/forgot-password', '/reset-password'];
 
 /**
  * SignUpBanner - Promotional banner encouraging users to sign up for ad-free experience
@@ -11,6 +13,7 @@ import { Button } from './ui/button';
 const SignUpBanner: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Check if banner was previously dismissed
@@ -21,9 +24,11 @@ const SignUpBanner: React.FC = () => {
     }
   }, []);
 
-  // Don't show if user is authenticated or dismissed
+  const isAuthPage = AUTH_PATHS.some((path) => location.pathname.toLowerCase().startsWith(path));
+
+  // Don't show if user is authenticated, dismissed, or on auth pages
   // Note: We show even while loading to avoid flash
-  if (user || isDismissed) {
+  if (user || isDismissed || isAuthPage) {
     return null;
   }
 
