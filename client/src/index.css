@@ -220,37 +220,39 @@ select {
   animation: spin-reverse 0.8s linear infinite;
 }
 
-/* Unique Signature Cinema Loader Keyframes */
-@keyframes unique-spin-reverse {
-  from {
-    transform: rotate(360deg);
-  }
-  to {
+/* Netflix Signature Buffer Spinner Keyframes */
+@keyframes netflix-spin {
+  0% {
     transform: rotate(0deg);
   }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes unique-laser-sweep {
+@keyframes netflix-dash {
   0% {
-    transform: translateX(-120%);
+    stroke-dasharray: 1, 126;
+    stroke-dashoffset: 0;
   }
   50% {
-    transform: translateX(100%);
+    stroke-dasharray: 92, 126;
+    stroke-dashoffset: -30;
   }
   100% {
-    transform: translateX(240%);
+    stroke-dasharray: 92, 126;
+    stroke-dashoffset: -124;
   }
 }
 
-@keyframes unique-glow-pulse {
-  0%, 100% {
-    opacity: 0.55;
-    transform: scale(0.92);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.08);
-  }
+.netflix-spinner-svg {
+  animation: netflix-spin 1.4s linear infinite;
+  transform-origin: center;
+}
+
+.netflix-spinner-arc {
+  animation: netflix-dash 1.4s ease-in-out infinite;
+  transform-origin: center;
 }
 
 /*
