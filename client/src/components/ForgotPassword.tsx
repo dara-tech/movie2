@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Film, Mail, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import LoadingSpinner from './LoadingSpinner';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -133,10 +134,7 @@ const ForgotPassword: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Sending...
-                  </div>
+                  <LoadingSpinner size="sm" inline text="Sending..." color="white" />
                 ) : (
                   <div className="flex items-center gap-2">
                     <Mail className="w-5 h-5" />

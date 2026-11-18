@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import MoviePlayer from './MoviePlayer';
 import TvShowPlayer from './TvShowPlayer';
+import LoadingSpinner from './LoadingSpinner';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Play, Clock, CheckCircle, RotateCcw, Search } from 'lucide-react';
@@ -289,7 +290,7 @@ const HistoryPage: React.FC = () => {
                               className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
                             >
                               {loadingContent === (item.movie?._id || item.tvShow?._id) ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                                <LoadingSpinner size="xs" inline color="white" />
                               ) : (
                                 <Play className="h-4 w-4 mr-1" />
                               )}
@@ -388,7 +389,7 @@ const HistoryPage: React.FC = () => {
                               className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
                             >
                               {loadingContent === (item.movie?._id || item.tvShow?._id) ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                                <LoadingSpinner size="xs" inline color="white" />
                               ) : (
                                 <Play className="h-4 w-4 mr-1" />
                               )}

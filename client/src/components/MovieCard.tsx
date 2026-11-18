@@ -9,6 +9,7 @@ import {
   registerPrefetchPromise,
 } from '../utils/prefetchCache';
 import MoviePlayModal from './MoviePlayModal';
+import LoadingSpinner from './LoadingSpinner';
 
 interface Movie {
   _id: string;
@@ -332,7 +333,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
                 title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {favoriteStatus === 'toggling' ? (
-                  <div className="animate-spin rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 border-2 border-current border-t-transparent" />
+                  <LoadingSpinner size="xs" inline color="white" />
                 ) : (
                   <Star className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isFavorite ? 'fill-current' : ''}`} />
                 )}
@@ -355,7 +356,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
             >
               {watchlistStatus === 'adding' ? (
-                <div className="animate-spin rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 border-2 border-current border-t-transparent" />
+                <LoadingSpinner size="xs" inline color="white" />
               ) : watchlistStatus === 'success' ? (
                 <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               ) : watchlistStatus === 'error' ? (
@@ -407,7 +408,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               className="bg-white/90 hover:bg-white text-black rounded-full h-12 w-12 sm:h-16 sm:w-16 p-0 shadow-xl sm:shadow-2xl hover:shadow-white/50 transition-all duration-300 hover:scale-110 pointer-events-auto"
             >
               {isLoading ? (
-                <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                <LoadingSpinner size="sm" inline color="cyan" />
               ) : (
                 <Play className="h-4 w-4 sm:h-6 sm:w-6 ml-0.5 sm:ml-1" fill="currentColor" />
               )}

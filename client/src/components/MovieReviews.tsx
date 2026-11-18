@@ -16,6 +16,7 @@ import {
   Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import LoadingSpinner from './LoadingSpinner';
 
 export interface Review {
   id: string;
@@ -893,10 +894,7 @@ export const MovieReviews: React.FC<MovieReviewsProps> = ({
                   className="flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
                 >
                   {isSubmitting ? (
-                    <>
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                      <span>Publishing...</span>
-                    </>
+                    <LoadingSpinner size="xs" inline text="Publishing..." color="white" />
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />

@@ -9,6 +9,7 @@ import streamingService, {
 } from '../services/streamingService';
 
 import { getPrefetchedTvShow } from '../utils/prefetchTvShow';
+import LoadingSpinner from './LoadingSpinner';
 
 export interface TVShow {
   _id: string;
@@ -366,11 +367,8 @@ const TvShowPlayModal: React.FC<TvShowPlayModalProps> = ({
             ) : (
               <div className="relative w-full h-full flex-1 bg-black overflow-hidden">
                 {isBuffering && (
-                  <div className="absolute inset-0 z-10 bg-black flex flex-col items-center justify-center gap-3 pointer-events-none">
-                    <div className="w-9 h-9 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
-                    <span className="text-slate-400 text-sm font-medium">
-                      Connecting Cinema Stream...
-                    </span>
+                  <div className="absolute inset-0 z-10 bg-black flex flex-col items-center justify-center pointer-events-none">
+                    <LoadingSpinner size="lg" text="Connecting Cinema Stream..." />
                   </div>
                 )}
                 <iframe
@@ -392,11 +390,8 @@ const TvShowPlayModal: React.FC<TvShowPlayModalProps> = ({
               </div>
             )
           ) : (
-            <div className="w-full h-full flex-1 flex flex-col items-center justify-center gap-3 bg-black">
-              <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-slate-400 text-sm font-medium">
-                Connecting Cinema Stream Provider...
-              </p>
+            <div className="w-full h-full flex-1 flex flex-col items-center justify-center bg-black">
+              <LoadingSpinner size="lg" text="Connecting Cinema Stream Provider..." />
             </div>
           )}
         </div>

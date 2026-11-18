@@ -12,6 +12,7 @@ import {
 } from '../utils/prefetchTvShow';
 import { tvShowPath } from '../utils/paths';
 import TvShowPlayModal from './TvShowPlayModal';
+import LoadingSpinner from './LoadingSpinner';
 
 interface TVShow {
   _id: string;
@@ -268,7 +269,7 @@ const TVShowCard: React.FC<TVShowCardProps> = ({
               }`}
             >
               {watchlistStatus === 'adding' ? (
-                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent" />
+                <LoadingSpinner size="xs" inline color="white" />
               ) : watchlistStatus === 'success' ? (
                 <Check className="h-3 w-3 sm:h-4 sm:w-4" />
               ) : watchlistStatus === 'error' ? (

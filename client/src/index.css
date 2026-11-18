@@ -220,6 +220,39 @@ select {
   animation: spin-reverse 0.8s linear infinite;
 }
 
+/* Unique Signature Cinema Loader Keyframes */
+@keyframes unique-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes unique-laser-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+@keyframes unique-glow-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
 /*
  * Player shell styles — only affect OUR page DOM, not inside cross-origin iframes.
  * Vidsrc/SuperEmbed ads live inside the iframe document; CSS/JS here cannot reach them.

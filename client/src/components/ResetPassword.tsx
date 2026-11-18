@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Film, Lock, CheckCircle, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import LoadingSpinner from './LoadingSpinner';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -184,10 +185,7 @@ const ResetPassword: React.FC = () => {
                 disabled={loading || !token}
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Resetting...
-                  </div>
+                  <LoadingSpinner size="sm" inline text="Resetting..." color="white" />
                 ) : (
                   <div className="flex items-center gap-2">
                     <Lock className="w-5 h-5" />

@@ -9,6 +9,7 @@ import { LogIn, Film } from 'lucide-react';
 import api from '../services/api';
 import DynamicLogo from './DynamicLogo';
 import GoogleAuthButton from './GoogleAuthButton';
+import LoadingSpinner from './LoadingSpinner';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -190,10 +191,7 @@ const Login: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Signing in...
-                  </div>
+                  <LoadingSpinner size="sm" inline text="Signing in..." color="white" />
                 ) : (
                   <div className="flex items-center gap-2">
                     <LogIn className="w-5 h-5" />
