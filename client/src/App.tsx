@@ -9,7 +9,6 @@ import { useActivityTracking } from './hooks/useActivityTracking';
 import ScrollToTop from './components/ScrollToTop';
 import AdLoader from './components/AdLoader';
 import TelegramJoinButton from './components/TelegramJoinButton';
-import VpnBanner from './components/VpnBanner';
 
 // Keep auth pages non-lazy for faster initial load
 import Login from './components/Login';
@@ -95,7 +94,6 @@ const AppContent: React.FC = () => {
       <SiteSEO />
       {showNavbar && <Navbar />}
       {showNavbar && <TelegramJoinButton />}
-      {showNavbar && <VpnBanner variant="floating" />}
       <main className={showNavbar ? (user ? "pt-16 md:pt-20" : "pt-16 md:pt-20") : ""}>
         <Routes>
           <Route 
