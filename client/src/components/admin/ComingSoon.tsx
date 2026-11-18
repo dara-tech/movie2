@@ -14,13 +14,13 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ title, description = "This feat
         <div className="mb-6 flex justify-center">
           {icon || <Construction className="h-20 w-20 text-gray-400" />}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4 uppercase tracking-wider">
           {title}
         </h1>
         <p className="text-gray-400 text-lg mb-6">
           {description}
         </p>
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+        <div className="bg-black border border-neutral-800 rounded-none p-6">
           <p className="text-sm text-gray-500">
             We're working hard to bring you this feature. Check back soon!
           </p>

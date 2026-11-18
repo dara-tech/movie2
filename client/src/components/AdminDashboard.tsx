@@ -260,15 +260,15 @@ const AdminDashboard: React.FC = () => {
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center space-y-4 px-4">
           <div className="flex items-center justify-center">
-            <div className="p-4 bg-gray-900 rounded-full border border-gray-800">
+            <div className="p-4 bg-black rounded-none border border-neutral-800">
               <MdWarning className="h-10 w-10 text-red-500" />
             </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Restricted Area</h2>
-          <p className="text-gray-400 text-sm sm:text-base max-w-md mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-wider">Restricted Area</h2>
+          <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto">
             You don&apos;t have permission to view the admin dashboard. Please contact an administrator if you believe this is an error.
           </p>
         </div>
@@ -286,13 +286,13 @@ const AdminDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <MdWarning className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-400 text-xl mb-4">{error}</p>
           <button
             onClick={fetchDashboardData}
-            className="px-6 py-3 bg-red-600 text-white  hover:bg-red-700 transition-colors font-semibold"
+            className="app-btn app-btn-primary app-btn-md"
           >
             Retry
           </button>
@@ -312,7 +312,7 @@ const AdminDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-[var(--sys-text-muted)] uppercase tracking-wider">
                 Total Users
               </span>
-              <div className="w-7 h-7 rounded-md bg-red-600/10 text-red-500 border border-red-500/20 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-none bg-red-600/10 text-red-500 border border-red-500/20 flex items-center justify-center">
                 <MdPeople className="h-4 w-4" />
               </div>
             </div>
@@ -331,7 +331,7 @@ const AdminDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-[var(--sys-text-muted)] uppercase tracking-wider">
                 Active Users
               </span>
-              <div className="w-7 h-7 rounded-md bg-emerald-600/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-none bg-emerald-600/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center">
                 <MdTimeline className="h-4 w-4" />
               </div>
             </div>
@@ -352,7 +352,7 @@ const AdminDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-[var(--sys-text-muted)] uppercase tracking-wider">
                 Movies Library
               </span>
-              <div className="w-7 h-7 rounded-md bg-purple-600/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-none bg-purple-600/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
                 <MdMovie className="h-4 w-4" />
               </div>
             </div>
@@ -371,7 +371,7 @@ const AdminDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-[var(--sys-text-muted)] uppercase tracking-wider">
                 TV Series Library
               </span>
-              <div className="w-7 h-7 rounded-md bg-amber-600/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-none bg-amber-600/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
                 <MdTv className="h-4 w-4" />
               </div>
             </div>
@@ -404,9 +404,9 @@ const AdminDashboard: React.FC = () => {
                   {recentUsers.map((recentUser, index) => (
                     <div
                       key={recentUser._id || `${recentUser.email || 'user'}-${index}`}
-                      className="flex items-center space-x-3 p-2 rounded-md hover:bg-[var(--sys-surface)] transition-colors border border-transparent hover:border-[var(--sys-border)]"
+                      className="flex items-center space-x-3 p-2 rounded-none hover:bg-[var(--sys-surface)] transition-colors border border-transparent hover:border-[var(--sys-border)]"
                     >
-                      <div className="w-8 h-8 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                      <div className="w-8 h-8 rounded-none bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 text-xs font-bold">
                         {recentUser.username ? recentUser.username.slice(0, 2).toUpperCase() : 'U'}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -452,9 +452,9 @@ const AdminDashboard: React.FC = () => {
                     {watchlistLeaders.movies.map((row, index) => (
                       <div
                         key={`m-${row.tmdbId ?? row.title}-${index}`}
-                        className="flex items-center gap-3 p-1.5 rounded-md hover:bg-[var(--sys-surface)] transition-colors"
+                        className="flex items-center gap-3 p-1.5 rounded-none hover:bg-[var(--sys-surface)] transition-colors"
                       >
-                        <div className="w-8 h-12 bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                        <div className="w-8 h-12 bg-black border border-neutral-800 rounded-none overflow-hidden flex-shrink-0">
                           {row.posterPath ? (
                             <img
                               src={`https://image.tmdb.org/t/p/w92${row.posterPath}`}
@@ -488,9 +488,9 @@ const AdminDashboard: React.FC = () => {
                     {watchlistLeaders.tvShows.map((row, index) => (
                       <div
                         key={`t-${row.tmdbId ?? row.title}-${index}`}
-                        className="flex items-center gap-3 p-1.5 rounded-md hover:bg-[var(--sys-surface)] transition-colors"
+                        className="flex items-center gap-3 p-1.5 rounded-none hover:bg-[var(--sys-surface)] transition-colors"
                       >
-                        <div className="w-8 h-12 bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                        <div className="w-8 h-12 bg-black border border-neutral-800 rounded-none overflow-hidden flex-shrink-0">
                           {row.posterPath ? (
                             <img
                               src={`https://image.tmdb.org/t/p/w92${row.posterPath}`}
@@ -538,7 +538,7 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="ctrl-panel-body">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-md">
+                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-none">
                   <span className="text-[11px] font-medium text-[var(--sys-text-dim)] uppercase tracking-wider block mb-1">
                     Collections
                   </span>
@@ -547,7 +547,7 @@ const AdminDashboard: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-md">
+                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-none">
                   <span className="text-[11px] font-medium text-[var(--sys-text-dim)] uppercase tracking-wider block mb-1">
                     Database Size
                   </span>
@@ -556,7 +556,7 @@ const AdminDashboard: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-md">
+                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-none">
                   <span className="text-[11px] font-medium text-[var(--sys-text-dim)] uppercase tracking-wider block mb-1">
                     Heap Memory
                   </span>
@@ -565,7 +565,7 @@ const AdminDashboard: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-md">
+                <div className="text-center p-3 bg-[var(--sys-surface)] border border-[var(--sys-border)] rounded-none">
                   <span className="text-[11px] font-medium text-[var(--sys-text-dim)] uppercase tracking-wider block mb-1">
                     Process Uptime
                   </span>

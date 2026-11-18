@@ -321,7 +321,7 @@ const AdminLayout: React.FC = () => {
           </button>
 
           <Link to="/admin/dashboard" className="sys-brand-link" title="Admin Dashboard">
-            <div className="w-5 h-5 rounded flex items-center justify-center bg-red-600/20 text-red-500 border border-red-500/30">
+            <div className="w-5 h-5 rounded-none flex items-center justify-center bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
               <Film size={12} />
             </div>
             <span className="sys-brand-name">Movie Admin</span>
@@ -409,10 +409,10 @@ const AdminLayout: React.FC = () => {
                         navigate(item.path);
                         setMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all text-left ${
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-none text-xs font-semibold transition-all text-left uppercase tracking-wider ${
                         isActive
-                          ? 'bg-red-500/15 text-red-400 border border-red-500/30 font-bold'
-                          : 'text-zinc-300 hover:bg-white/5 border border-transparent'
+                          ? 'bg-cyan-500/15 text-cyan-400 border-l-2 border-cyan-400 font-bold'
+                          : 'text-zinc-400 hover:bg-white/5 border-l-2 border-transparent'
                       }`}
                     >
                       <Icon size={16} />
@@ -432,7 +432,7 @@ const AdminLayout: React.FC = () => {
                                 navigate(sub.path);
                                 setMobileMenuOpen(false);
                               }}
-                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-[11.5px] transition-all text-left ${
+                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-none text-[11.5px] transition-all text-left ${
                                 isSubActive
                                   ? 'text-[var(--sys-cyan)] font-semibold bg-[var(--sys-cyan)]/10'
                                   : 'text-zinc-400 hover:text-zinc-200'
@@ -440,7 +440,7 @@ const AdminLayout: React.FC = () => {
                             >
                               <SubIcon size={13} />
                               <span className="truncate">{sub.title}</span>
-                              {isSubActive && <span className="w-1.5 h-1.5 rounded-full bg-[var(--sys-cyan)] ml-auto" />}
+                              {isSubActive && <span className="w-1.5 h-1.5 rounded-none bg-[var(--sys-cyan)] ml-auto" />}
                             </button>
                           );
                         })}
@@ -457,7 +457,7 @@ const AdminLayout: React.FC = () => {
                 to="/movies"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold bg-[var(--sys-panel)] text-[var(--sys-text-muted)] hover:text-[var(--sys-text)] border border-[var(--sys-border)]"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-none text-xs font-semibold bg-[var(--sys-panel)] text-[var(--sys-text-muted)] hover:text-[var(--sys-text)] border border-[var(--sys-border)] uppercase tracking-wider"
               >
                 <ExternalLink size={13} />
                 <span>Public Site</span>
@@ -469,7 +469,7 @@ const AdminLayout: React.FC = () => {
                   logout();
                   navigate('/login');
                 }}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/25 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-none text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/25 transition-colors uppercase tracking-wider"
               >
                 <LogOut size={13} />
                 <span>Sign Out</span>
