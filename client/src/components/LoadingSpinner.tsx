@@ -23,13 +23,13 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   inline = false,
   className = '',
 }) => {
-  // Sizing map (clean ratios from button-inline to fullscreen buffer)
-  const sizeMap = {
-    xs: { wrap: 'w-4 h-4', stroke: 5 },
-    sm: { wrap: 'w-5 h-5', stroke: 4.5 },
-    md: { wrap: 'w-9 h-9', stroke: 4 },
-    lg: { wrap: 'w-14 h-14', stroke: 3.8 },
-    xl: { wrap: 'w-18 h-18', stroke: 3.5 },
+  // Sizing map (clean, modern ratios with explicit pixel locks)
+  const sizeMap: Record<string, { wrap: string; px: number; stroke: number }> = {
+    xs: { wrap: 'w-4 h-4', px: 16, stroke: 4.5 },
+    sm: { wrap: 'w-5 h-5', px: 20, stroke: 4 },
+    md: { wrap: 'w-8 h-8', px: 32, stroke: 3.8 },
+    lg: { wrap: 'w-10 h-10', px: 40, stroke: 3.5 },
+    xl: { wrap: 'w-12 h-12', px: 48, stroke: 3.2 },
   };
 
   const currentSize = sizeMap[size] || sizeMap.md;
@@ -49,12 +49,25 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const spinnerElement = (
     <div
       className={`relative inline-flex items-center justify-center shrink-0 ${currentSize.wrap} ${className}`}
+      style={{
+        width: currentSize.px,
+        height: currentSize.px,
+        minWidth: currentSize.px,
+        minHeight: currentSize.px,
+        maxWidth: currentSize.px,
+        maxHeight: currentSize.px
+      }}
       role="status"
       aria-label={text || 'Loading'}
     >
       <svg
         viewBox="0 0 50 50"
-        className="netflix-spinner-svg w-full h-full"
+        className="netflix-spinner-svg"
+        style={{
+          width: currentSize.px,
+          height: currentSize.px,
+          display: 'block'
+        }}
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Subtle background track */}

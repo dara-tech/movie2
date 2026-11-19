@@ -254,7 +254,7 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <LoadingSpinner fullScreen text="Loading dashboard..." color="red" size="xl" />
+      <LoadingSpinner fullScreen text="Loading dashboard..." color="red" size="md" />
     );
   }
 
