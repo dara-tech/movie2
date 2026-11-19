@@ -10,9 +10,29 @@ import {
   BarChart3, 
   Sparkles, 
   Loader2,
-  Calendar,
-  Layers
+  Film,
+  Tv,
+  Bookmark,
+  Clock,
+  Heart,
+  FileText,
+  Home,
+  ExternalLink,
+  CornerDownRight
 } from 'lucide-react';
+import { 
+  FaGoogle, 
+  FaXTwitter, 
+  FaFacebook, 
+  FaReddit, 
+  FaTelegram, 
+  FaYoutube, 
+  FaTiktok, 
+  FaInstagram, 
+  FaPinterest, 
+  FaCompass, 
+  FaGlobe 
+} from 'react-icons/fa6';
 import api from '../services/api';
 import LoadingSpinner from './LoadingSpinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -40,16 +60,245 @@ interface UserActivityEvent {
   eventType: string;
   path?: string;
   query?: Record<string, any>;
+  referrer?: string | null;
   metadata?: Record<string, any>;
   device?: string;
   browser?: string;
   locale?: string;
+  ipAddress?: string;
   contentType?: string | null;
   contentId?: string | null;
   searchTerm?: string;
   createdAt: string;
   user?: UserSummary;
 }
+
+interface ReferrerSourceInfo {
+  type: 'search' | 'social' | 'video' | 'internal' | 'external' | 'direct' | 'ad';
+  label: string;
+  detail?: string;
+  icon: any;
+  badgeColor: string;
+}
+
+const getPageIcon = (path?: string, contentType?: string | null) => {
+  if (!path || path === '/' || path === '') return Home;
+  if (path.startsWith('/movie/') || contentType === 'movie') return Film;
+  if (path.startsWith('/tvshow/') || contentType === 'tvshow') return Tv;
+  if (path.startsWith('/movies')) return Film;
+  if (path.startsWith('/tvshows')) return Tv;
+  if (path.startsWith('/search')) return Search;
+  if (path.startsWith('/watchlist')) return Bookmark;
+  if (path.startsWith('/history')) return Clock;
+  if (path.startsWith('/favorites')) return Heart;
+  return FileText;
+};
+
+const getReferrerSource = (referrer?: string | null): ReferrerSourceInfo => {
+  if (!referrer || typeof referrer !== 'string' || referrer.trim() === '') {
+    return {
+      type: 'direct',
+      label: 'Direct',
+      detail: 'Typed URL or Bookmark',
+      icon: FaCompass,
+      badgeColor: 'text-zinc-400 bg-zinc-800/80 border-zinc-700/60'
+    };
+  }
+
+  const raw = referrer.trim();
+
+  // Relative path (internal SPA navigation)
+  if (raw.startsWith('/')) {
+    return {
+      type: 'internal',
+      label: 'Internal',
+      detail: raw,
+      icon: CornerDownRight,
+      badgeColor: 'text-zinc-300 bg-zinc-800/80 border-zinc-700/60'
+    };
+  }
+
+  let hostname = '';
+  let pathname = '';
+  try {
+    const url = new URL(raw);
+    hostname = url.hostname.toLowerCase();
+    pathname = url.pathname;
+  } catch {
+    hostname = raw.toLowerCase();
+  }
+
+  // Internal domains (same site)
+  if (
+    hostname.includes('moviestream.cc') ||
+    hostname.includes('streamhd.to') ||
+    hostname.includes('freemovie.online') ||
+    hostname.includes('streammovie') ||
+    hostname.includes('localhost') ||
+    hostname.includes('127.0.0.1')
+  ) {
+    return {
+      type: 'internal',
+      label: 'Internal',
+      detail: pathname && pathname !== '/' ? pathname : 'Same site',
+      icon: CornerDownRight,
+      badgeColor: 'text-zinc-300 bg-zinc-800/80 border-zinc-700/60'
+    };
+  }
+
+  // Google
+  if (hostname.includes('google.')) {
+    return {
+      type: 'search',
+      label: 'Google',
+      detail: 'Organic Search',
+      icon: FaGoogle,
+      badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/30'
+    };
+  }
+
+  // Bing
+  if (hostname.includes('bing.com')) {
+    return {
+      type: 'search',
+      label: 'Bing',
+      detail: 'Search',
+      icon: Search,
+      badgeColor: 'text-teal-400 bg-teal-500/10 border-teal-500/30'
+    };
+  }
+
+  // Yahoo
+  if (hostname.includes('yahoo.com')) {
+    return {
+      type: 'search',
+      label: 'Yahoo',
+      detail: 'Search',
+      icon: Search,
+      badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30'
+    };
+  }
+
+  // DuckDuckGo
+  if (hostname.includes('duckduckgo.com')) {
+    return {
+      type: 'search',
+      label: 'DuckDuckGo',
+      detail: 'Search',
+      icon: Search,
+      badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+    };
+  }
+
+  // Twitter / X
+  if (hostname.includes('twitter.com') || hostname.includes('x.com') || hostname.includes('t.co')) {
+    return {
+      type: 'social',
+      label: 'Twitter / X',
+      detail: 'Social Post',
+      icon: FaXTwitter,
+      badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30'
+    };
+  }
+
+  // Facebook
+  if (hostname.includes('facebook.com') || hostname.includes('fb.me') || hostname.includes('fb.com')) {
+    return {
+      type: 'social',
+      label: 'Facebook',
+      detail: 'Social Share',
+      icon: FaFacebook,
+      badgeColor: 'text-blue-500 bg-blue-600/10 border-blue-600/30'
+    };
+  }
+
+  // Telegram
+  if (hostname.includes('t.me') || hostname.includes('telegram.org') || raw.includes('org.telegram.messenger')) {
+    return {
+      type: 'social',
+      label: 'Telegram',
+      detail: 'Channel / Chat',
+      icon: FaTelegram,
+      badgeColor: 'text-sky-300 bg-sky-500/10 border-sky-500/30'
+    };
+  }
+
+  // Reddit
+  if (hostname.includes('reddit.com')) {
+    return {
+      type: 'social',
+      label: 'Reddit',
+      detail: 'Post / Comment',
+      icon: FaReddit,
+      badgeColor: 'text-orange-400 bg-orange-500/10 border-orange-500/30'
+    };
+  }
+
+  // YouTube
+  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+    return {
+      type: 'video',
+      label: 'YouTube',
+      detail: 'Video Link',
+      icon: FaYoutube,
+      badgeColor: 'text-red-400 bg-red-500/10 border-red-500/30'
+    };
+  }
+
+  // TikTok
+  if (hostname.includes('tiktok.com')) {
+    return {
+      type: 'social',
+      label: 'TikTok',
+      detail: 'Social Link',
+      icon: FaTiktok,
+      badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+    };
+  }
+
+  // Instagram
+  if (hostname.includes('instagram.com')) {
+    return {
+      type: 'social',
+      label: 'Instagram',
+      detail: 'Social Link',
+      icon: FaInstagram,
+      badgeColor: 'text-pink-500 bg-pink-600/10 border-pink-600/30'
+    };
+  }
+
+  // Pinterest
+  if (hostname.includes('pinterest.com')) {
+    return {
+      type: 'social',
+      label: 'Pinterest',
+      detail: 'Pin Link',
+      icon: FaPinterest,
+      badgeColor: 'text-red-500 bg-red-600/10 border-red-600/30'
+    };
+  }
+
+  // Ad Networks (Monetag, etc.)
+  if (hostname.includes('5gvci.com') || hostname.includes('quge5.com') || hostname.includes('monetag')) {
+    return {
+      type: 'ad',
+      label: 'Monetag Ad',
+      detail: hostname,
+      icon: Globe,
+      badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+    };
+  }
+
+  // Other external domain
+  const cleanDomain = hostname.replace(/^www\./, '');
+  return {
+    type: 'external',
+    label: cleanDomain || 'External',
+    detail: raw,
+    icon: FaGlobe,
+    badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30'
+  };
+};
 
 interface BreakdownEntry {
   _id: string;
@@ -246,11 +495,6 @@ const AdminUserActivity: React.FC = () => {
       })),
     [events]
   );
-
-  const maxInsightValue = useMemo(() => {
-    if (!insightSeries.length) return 1;
-    return Math.max(...insightSeries.map(item => (typeof item.value === 'number' ? item.value : 0)), 1);
-  }, [insightSeries]);
 
   const eventTypeBadge = (eventType: string) => {
     switch (eventType) {
@@ -568,6 +812,11 @@ Summary data: ${JSON.stringify(payload)}`;
         </div>
 
         <div className="ctrl-panel-body p-0">
+          {error && (
+            <div className="p-3 bg-red-500/10 border-b border-red-500/20 text-red-400 text-xs font-mono">
+              {error}
+            </div>
+          )}
           {loading ? (
             <div className="py-12 flex justify-center">
               <LoadingSpinner text="Ingesting telemetry event buffer..." color="blue" />
@@ -585,60 +834,85 @@ Summary data: ${JSON.stringify(payload)}`;
                   <tr>
                     <th>Signal</th>
                     <th>User Identity</th>
-                    <th>Context / Path</th>
+                    <th>Visited Page</th>
+                    <th>Where From</th>
                     <th>Device Info</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((event) => (
-                    <tr key={event._id}>
-                      <td>
-                        <div className="flex flex-col gap-1">
-                          <div>{eventTypeBadge(event.eventType)}</div>
-                          <span className="text-[10px] font-mono text-zinc-500">{formatDateTime(event.createdAt)}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div>
-                          <div className="text-xs font-semibold text-zinc-200">
-                            {event.userType === 'authenticated'
-                              ? event.user?.username || event.user?.email || 'Authenticated User'
-                              : 'Anonymous Guest'}
+                  {events.map((event) => {
+                    const PageIcon = getPageIcon(event.path, event.contentType);
+                    const source = getReferrerSource(event.referrer);
+                    const SourceIcon = source.icon;
+
+                    return (
+                      <tr key={event._id}>
+                        <td>
+                          <div className="flex flex-col gap-1">
+                            <div>{eventTypeBadge(event.eventType)}</div>
+                            <span className="text-[10px] font-mono text-zinc-500">{formatDateTime(event.createdAt)}</span>
                           </div>
-                          <div className="text-[10px] font-mono text-zinc-500">
-                            {event.userType === 'authenticated'
-                              ? event.user?.email || event.user?.username
-                              : `Session: ${event.sessionId.slice(0, 8)}...`}
+                        </td>
+                        <td>
+                          <div>
+                            <div className="text-xs font-semibold text-zinc-200">
+                              {event.userType === 'authenticated'
+                                ? event.user?.username || event.user?.email || 'Authenticated User'
+                                : 'Anonymous Guest'}
+                            </div>
+                            <div className="text-[10px] font-mono text-zinc-500">
+                              {event.userType === 'authenticated'
+                                ? event.user?.email || event.user?.username
+                                : `Session: ${event.sessionId.slice(0, 8)}...`}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="text-xs font-mono text-zinc-300">{event.path || '—'}</div>
-                        {event.searchTerm && (
-                          <div className="text-[10px] font-mono text-[var(--sys-cyan)]">Query: {event.searchTerm}</div>
-                        )}
-                        {event.contentType && (
-                          <div className="text-[10px] font-mono text-zinc-500 capitalize">
-                            Target: {event.contentType} {event.contentId ? `#${event.contentId}` : ''}
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-1.5">
+                            <PageIcon className="w-3.5 h-3.5 text-[var(--sys-cyan)] shrink-0" />
+                            <span className="text-xs font-mono text-zinc-200 truncate max-w-[200px]" title={event.path || '/'}>
+                              {event.path || '/'}
+                            </span>
                           </div>
-                        )}
-                      </td>
-                      <td className="text-xs font-mono text-zinc-400">
-                        <div>{event.device || 'Unknown'}</div>
-                        <div className="text-[10px] text-zinc-500">{event.browser}</div>
-                      </td>
-                      <td className="text-right">
-                        <button
-                          className="sys-btn"
-                          onClick={() => setSelectedEvent(event)}
-                        >
-                          <Info className="w-3 h-3 mr-1" />
-                          Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {event.searchTerm && (
+                            <div className="text-[10px] font-mono text-[var(--sys-cyan)] mt-0.5">Query: {event.searchTerm}</div>
+                          )}
+                          {event.contentType && (
+                            <div className="text-[10px] font-mono text-zinc-500 capitalize mt-0.5">
+                              Target: {event.contentType} {event.contentId ? `#${event.contentId}` : ''}
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div className="flex flex-col gap-0.5">
+                            <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[11px] font-mono font-medium w-fit ${source.badgeColor}`}>
+                              <SourceIcon className="w-3 h-3 shrink-0" />
+                              <span>{source.label}</span>
+                            </div>
+                            {source.detail && (
+                              <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[150px]" title={event.referrer || source.detail}>
+                                {source.detail}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="text-xs font-mono text-zinc-400">
+                          <div>{event.device || 'Unknown'}</div>
+                          <div className="text-[10px] text-zinc-500">{event.browser}</div>
+                        </td>
+                        <td className="text-right">
+                          <button
+                            className="sys-btn"
+                            onClick={() => setSelectedEvent(event)}
+                          >
+                            <Info className="w-3 h-3 mr-1" />
+                            Details
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -680,6 +954,44 @@ Summary data: ${JSON.stringify(payload)}`;
                   <span className="text-zinc-200">{selectedEvent.userType}</span>
                 </div>
                 <div className="p-2 bg-zinc-900 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 block">Visited Page</span>
+                  {(() => {
+                    const PageIcon = getPageIcon(selectedEvent.path, selectedEvent.contentType);
+                    return (
+                      <span className="text-zinc-200 flex items-center gap-1.5 break-all mt-0.5">
+                        <PageIcon className="w-3.5 h-3.5 text-[var(--sys-cyan)] shrink-0" />
+                        <span>{selectedEvent.path || '/'}</span>
+                      </span>
+                    );
+                  })()}
+                </div>
+                <div className="p-2 bg-zinc-900 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 block">Where From (Source)</span>
+                  {(() => {
+                    const source = getReferrerSource(selectedEvent.referrer);
+                    const SourceIcon = source.icon;
+                    return (
+                      <span className="text-zinc-200 flex items-center gap-1.5 break-all mt-0.5">
+                        <SourceIcon className="w-3.5 h-3.5 shrink-0" />
+                        <span>{source.label}</span>
+                        {source.detail && (
+                          <span className="text-[10px] text-zinc-500">({source.detail})</span>
+                        )}
+                        {selectedEvent.referrer && selectedEvent.referrer.startsWith('http') && (
+                          <a
+                            href={selectedEvent.referrer}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-[var(--sys-cyan)] hover:underline inline-flex items-center gap-0.5 ml-1"
+                          >
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </span>
+                    );
+                  })()}
+                </div>
+                <div className="p-2 bg-zinc-900 border border-zinc-800">
                   <span className="text-[10px] text-zinc-500 block">Session ID</span>
                   <span className="text-zinc-200 break-all">{selectedEvent.sessionId}</span>
                 </div>
@@ -688,6 +1000,25 @@ Summary data: ${JSON.stringify(payload)}`;
                   <span className="text-zinc-200">{formatDateTime(selectedEvent.createdAt)}</span>
                 </div>
               </div>
+
+              {selectedEvent.referrer && (
+                <div>
+                  <span className="text-[10px] text-zinc-500 block mb-1">Full Referrer URL</span>
+                  <div className="p-2 bg-black border border-zinc-900 text-zinc-300 break-all select-all flex items-center justify-between gap-2">
+                    <span>{selectedEvent.referrer}</span>
+                    {selectedEvent.referrer.startsWith('http') && (
+                      <a
+                        href={selectedEvent.referrer}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[var(--sys-cyan)] hover:underline inline-flex items-center gap-1 shrink-0"
+                      >
+                        Visit <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <span className="text-[10px] text-zinc-500 block mb-1">Query Parameters</span>

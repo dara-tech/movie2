@@ -151,6 +151,7 @@ router.get('/', requireAdmin, async (req, res) => {
       const searchRegex = new RegExp(search, 'i');
       query.$or = [
         { path: searchRegex },
+        { referrer: searchRegex },
         { searchTerm: searchRegex },
         { sessionId: searchRegex },
         { 'metadata.title': searchRegex },
