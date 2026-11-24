@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface AdLoaderProps {
-  /** Optional zone ID override for Monetag */
+  /** Optional zone ID override for Monetag MultiTag */
   zoneId?: string;
   /** Optional script URL override */
   scriptUrl?: string;
@@ -20,8 +20,7 @@ const EXCLUDED_ROUTES = [
   '/reset-password',
 ];
 
-const ADMIN_OR_AUTH_SUPPRESSION_STYLE_ID = 'disable-ads-guard-style';
-const POPUNDER_ONLY_CLEANUP_STYLE_ID = 'popunder-only-cleanup-style';
+const AD_SUPPRESSION_STYLE_ID = 'disable-ads-guard-style';
 
 /**
  * Check if the given path is a login/auth page or an admin page where ads must never show.
@@ -45,14 +44,15 @@ const isExcludedPath = (path: string): boolean => {
 };
 
 /**
- * Total ad suppression style applied on /login, /register, and /admin routes.
+ * Enforces CSS rules to guarantee ad network elements, floating push boxes, and popunder overlays
+ * are completely invisible and unable to receive click events.
  */
-const applyFullAdSuppressionStyle = () => {
+const applyAdSuppressionStyle = () => {
   if (typeof document === 'undefined') return;
-  if (document.getElementById(ADMIN_OR_AUTH_SUPPRESSION_STYLE_ID)) return;
+  if (document.getElementById(AD_SUPPRESSION_STYLE_ID)) return;
 
   const style = document.createElement('style');
-  style.id = ADMIN_OR_AUTH_SUPPRESSION_STYLE_ID;
+  style.id = AD_SUPPRESSION_STYLE_ID;
   style.textContent = `
     #monetag-ad-script,
     [id*="monetag"],
@@ -64,7 +64,6 @@ const applyFullAdSuppressionStyle = () => {
     [class^="zone_"],
     iframe[src*="quge5.com"],
     iframe[src*="5gvci.com"],
-    iframe[src*="roagrofoogrobo.com"],
     div[style*="z-index: 2147483647"],
     div[style*="z-index: 9999999"] {
       display: none !important;
@@ -81,50 +80,23 @@ const applyFullAdSuppressionStyle = () => {
   (document.head || document.documentElement).appendChild(style);
 };
 
-const removeFullAdSuppressionStyle = () => {
+const removeAdSuppressionStyle = () => {
   if (typeof document === 'undefined') return;
-  const style = document.getElementById(ADMIN_OR_AUTH_SUPPRESSION_STYLE_ID);
+  const style = document.getElementById(AD_SUPPRESSION_STYLE_ID);
   if (style?.parentNode) {
     style.parentNode.removeChild(style);
   }
 };
 
 /**
- * Ensures only Popunder (OnClick) works on public pages:
- * Hides annoying visual in-page push boxes (.ipp-container), floating cards, etc.
- */
-const applyPopunderOnlyStyle = () => {
-  if (typeof document === 'undefined') return;
-  if (document.getElementById(POPUNDER_ONLY_CLEANUP_STYLE_ID)) return;
-
-  const style = document.createElement('style');
-  style.id = POPUNDER_ONLY_CLEANUP_STYLE_ID;
-  style.textContent = `
-    .ipp-container,
-    [class*="ipp-"],
-    [id*="ipp-"] {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      opacity: 0 !important;
-      width: 0 !important;
-      height: 0 !important;
-      position: absolute !important;
-      top: -99999px !important;
-      left: -99999px !important;
-    }
-  `;
-  (document.head || document.documentElement).appendChild(style);
-};
-
-/**
- * Remove all Monetag scripts and elements when on admin / login or when user is authenticated.
+ * Thoroughly removes all Monetag scripts, ad iframes, floating popups, and overlays from the DOM.
  */
 const removeMonetagAds = () => {
   if (typeof document === 'undefined') return;
 
+  // 1. Remove all Monetag and ad network script tags
   const scripts = document.querySelectorAll(
-    'script#monetag-ad-script, script[src*="quge5.com"], script[src*="5gvci.com"], script[src*="roagrofoogrobo.com"], script[data-zone]'
+    'script#monetag-ad-script, script[src*="quge5.com"], script[src*="5gvci.com"], script[data-zone]'
   );
   scripts.forEach((script) => {
     try {
@@ -132,8 +104,9 @@ const removeMonetagAds = () => {
     } catch {}
   });
 
+  // 2. Remove ad iframes created by Monetag / ad networks
   const iframes = document.querySelectorAll(
-    'iframe[src*="quge5.com"], iframe[src*="5gvci.com"], iframe[src*="roagrofoogrobo.com"], iframe[id*="monetag"], iframe[class*="monetag"]'
+    'iframe[src*="quge5.com"], iframe[src*="5gvci.com"], iframe[id*="monetag"], iframe[class*="monetag"]'
   );
   iframes.forEach((iframe) => {
     try {
@@ -141,6 +114,7 @@ const removeMonetagAds = () => {
     } catch {}
   });
 
+  // 3. Remove injected ad overlays, floating in-page push, banners, or popunder containers
   const adSelectors = [
     '[id*="monetag"]',
     '[class*="monetag"]',
@@ -154,6 +128,7 @@ const removeMonetagAds = () => {
     try {
       const elements = document.querySelectorAll(selector);
       elements.forEach((el) => {
+        // Only remove ad-specific containers, avoid touching application components
         const tagName = el.tagName.toLowerCase();
         if (
           tagName === 'iframe' ||
@@ -167,35 +142,29 @@ const removeMonetagAds = () => {
     } catch {}
   });
 
+  // 4. Clear any Monetag globals on window
   if (typeof window !== 'undefined') {
     try {
       const win = window as any;
       if (win.__monetag) win.__monetag = undefined;
       if (win._monetag) win._monetag = undefined;
-      if (win.__monetag_injected) win.__monetag_injected = false;
     } catch {}
   }
 };
 
-/**
- * AdLoader keeps Popunder (OnClick) active for public visitors, while:
- * 1. Suppressing floating in-page push and visual banner popups.
- * 2. Strictly disabling ads and popunders on /login, /register, and /admin routes.
- * 3. Keeping authenticated users 100% ad-free.
- */
 const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const observerRef = useRef<MutationObserver | null>(null);
 
-  // Guard against window.open popunders when on login, auth, or admin pages
+  // Guard against window.open popunders and clicks when on login, auth, or admin pages
   useEffect(() => {
     const currentPath = location.pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
     const isExcluded = isExcludedPath(currentPath) || (typeof window !== 'undefined' && isExcludedPath(window.location.pathname));
     const isBlocked = disabled || Boolean(user) || isExcluded;
 
     if (isBlocked && typeof window !== 'undefined') {
-      applyFullAdSuppressionStyle();
+      applyAdSuppressionStyle();
 
       const originalOpen = window.open;
       const adDomainPatterns = [
@@ -208,9 +177,11 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
         /hilltopads/i,
       ];
 
-      // Block window.open popunders only on protected (login/admin/user) pages
+      // Block window.open popunders
       window.open = function(url?: string | URL, target?: string, features?: string) {
         const urlStr = url ? String(url).trim() : '';
+
+        // Block empty, about:blank, or ad network popunders
         if (!urlStr || urlStr === 'about:blank' || urlStr === 'about:srcdoc') {
           return null;
         }
@@ -223,7 +194,7 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
         return originalOpen.call(this, url, target, features);
       };
 
-      // Capture-phase click listener to stop ad anchor clicks on login/admin
+      // Capture-phase click listener to stop hidden ad anchor clicks
       const handleCaptureClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         const link = target?.closest('a') as HTMLAnchorElement | null;
@@ -245,39 +216,40 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
         document.removeEventListener('click', handleCaptureClick, true);
       };
     } else {
-      removeFullAdSuppressionStyle();
-      applyPopunderOnlyStyle();
+      removeAdSuppressionStyle();
     }
   }, [location.pathname, user, disabled]);
 
-  // Main ad injection effect for Popunder (OnClick)
+  // Main ad injection and cleanup effect
   useEffect(() => {
     const currentPath = location.pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
     const isExcluded = isExcludedPath(currentPath) || (typeof window !== 'undefined' && isExcludedPath(window.location.pathname));
     const isAuthenticated = Boolean(user) || user !== null;
 
+    // Disconnect any existing observer
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
     }
 
-    // 1. Do not inject while auth is loading to prevent flash on /login or /admin
+    // 1. DO NOT inject ads while authentication is loading (prevents flash on /admin or /login)
     if (loading) {
       return;
     }
 
-    // 2. If disabled, logged in, or on excluded routes (login/admin), keep 100% clean
+    // 2. Clean up and return if disabled, user is authenticated (100% ad-free), or on login/admin routes
     if (disabled || isAuthenticated || isExcluded) {
-      applyFullAdSuppressionStyle();
+      applyAdSuppressionStyle();
       removeMonetagAds();
 
-      // If Monetag was active before navigating to login/admin, flush memory
+      // If Monetag was active before entering login/admin, reset window to cleanly flush memory listeners
       if (typeof window !== 'undefined' && (window as any).__monetag_injected) {
         (window as any).__monetag_injected = false;
         window.location.replace(currentPath);
         return;
       }
 
+      // Set up a MutationObserver on login / admin pages to sweep any delayed ad nodes
       if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
         const observer = new MutationObserver(() => {
           removeMonetagAds();
@@ -292,9 +264,8 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
       return;
     }
 
-    // 3. Public visitor browsing: Load Monetag Popunder (OnClick)
-    removeFullAdSuppressionStyle();
-    applyPopunderOnlyStyle();
+    // 3. Otherwise, load Monetag for unauthenticated public browsing
+    removeAdSuppressionStyle();
 
     const activeZoneId =
       zoneId ||
@@ -306,9 +277,11 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
       process.env.REACT_APP_MONETAG_SCRIPT_URL ||
       'https://quge5.com/88/tag.min.js';
 
+    // Prevent duplicate script injection
     const existingScript = document.getElementById('monetag-ad-script');
     if (existingScript) return;
 
+    // Monetag MultiTag script
     const script = document.createElement('script');
     script.id = 'monetag-ad-script';
     script.src = activeScriptUrl;
@@ -318,7 +291,7 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
     script.setAttribute('data-cfasync', 'false');
 
     script.onerror = () => {
-      // Ad blocker blocked script or network error - fail silently
+      // Ad blocker blocked the script or network error - fail silently
     };
 
     const targetParent = document.head || document.body || document.documentElement;
@@ -326,7 +299,12 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
     targetParent.appendChild(script);
 
     return () => {
-      // On unmount/route change, if leaving to a protected route, it cleans up
+      // Cleanup script and ads on unmount
+      removeMonetagAds();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
     };
   }, [user, loading, zoneId, scriptUrl, disabled, location.pathname]);
 
