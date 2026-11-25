@@ -278,7 +278,10 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
       'https://quge5.com/88/tag.min.js';
 
     // Prevent duplicate script injection
-    const existingScript = document.getElementById('monetag-ad-script');
+    const existingScript =
+      document.getElementById('monetag-ad-script') ||
+      document.querySelector('script[src*="quge5.com"]') ||
+      document.querySelector('script[data-zone="303675"]');
     if (existingScript) return;
 
     // Monetag MultiTag script
