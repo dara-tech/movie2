@@ -224,7 +224,7 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
   useEffect(() => {
     const currentPath = location.pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
     const isExcluded = isExcludedPath(currentPath) || (typeof window !== 'undefined' && isExcludedPath(window.location.pathname));
-    const isAuthenticated = Boolean(user) || user !== null;
+    const isAuthenticated = Boolean(user);
 
     // Disconnect any existing observer
     if (observerRef.current) {
