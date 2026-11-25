@@ -1,3 +1,15 @@
+// Monetag Web Push Notifications (Zone 12155398)
+try {
+  self.options = {
+    domain: "5gvci.com",
+    zoneId: 12155398
+  };
+  self.lary = "";
+  importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw');
+} catch (e) {
+  // Offline or service worker script load error
+}
+
 // Service Worker for caching static assets
 // Version number - increment this on each deployment to clear old caches
 const CACHE_VERSION = 'v2';

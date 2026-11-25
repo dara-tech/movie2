@@ -302,8 +302,7 @@ const AdLoader: React.FC<AdLoaderProps> = ({ zoneId, scriptUrl, disabled = false
     targetParent.appendChild(script);
 
     return () => {
-      // Cleanup script and ads on unmount
-      removeMonetagAds();
+      // Disconnect observer on cleanup; only remove ads when transitioning to auth/admin
       if (observerRef.current) {
         observerRef.current.disconnect();
         observerRef.current = null;
